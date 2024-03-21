@@ -22,19 +22,6 @@ map.set(1, youtuber1);
 map.set(2, youtuber2);
 map.set(3, youtuber3);
 
-exports.getAdmin = (req, res, next) => {
-  res.send("hello express!");
-};
-
-exports.postAdmin = (req, res, next) => {
-  const body = req.body;
-  const { message } = req.body;
-  console.log(body);
-  console.log(message);
-
-  res.json(req.body);
-};
-
 exports.getYoutubers = (req, res, next) => {
   //   console.log(map);
   const obj = {};
@@ -72,4 +59,43 @@ exports.postYoutuber = (req, res, next) => {
   res.json({
     message: `${body.title}님, 유튜버 생활을 응원합니다! request complete!`,
   });
+};
+
+exports.deleteYoutuber = (req, res, next) => {
+  const id = parseInt(req.params.id);
+
+  if (map.has(id)) {
+    map.delete(id);
+    res.json({ message: "delete completed" });
+  } else {
+    res.json({ message: `no id number_${id}, delete failed` });
+  }
+};
+
+exports.deleteYoutubers = (req, res, next) => {
+  let message = "";
+  if (map.size) {
+    map.clear();
+    message = "all youtubers clear complete!";
+  } else {
+    message = "no youtubers, already delete!";
+  }
+  res.json({ message: `${message}` });
+};
+
+exports.putYoutuber = (req, res, next) => {
+  const id = parseInt(req.params.id);
+  const newtitle = req.body.newTitle;
+
+  const youtuber = map.get(id);
+  if (youtuber !== undefined) {
+    // const 수정_youtuber = { ...youtuber, title: newtitle.substring(1, newtitle.length - 1) };
+    const 수정_youtuber = { ...youtuber, title: newtitle };
+    // map은 그냥 같은 id로 set하면 덮어씌워짐.
+    // map.delete(id);
+    map.set(id, 수정_youtuber);
+    res.send({ message: `edit completed, ${youtuber.title} to ${수정_youtuber.title} ` });
+  } else {
+    res.send({ message: `no id ${id}` });
+  }
 };
