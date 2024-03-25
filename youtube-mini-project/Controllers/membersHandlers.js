@@ -6,7 +6,38 @@ let db = new Map();
 //     "name" : "ㅂㅁㅅ"
 // }
 
-exports.postLogin = (req, res, next) => {};
+function findMemberKey(inputUserId) {
+  let memberKey = 0;
+  for (let [key, value] of db) {
+    if (value.userId === inputUserId) {
+      memberKey = key;
+      break;
+    }
+  }
+  return memberKey;
+}
+
+function validatePasswordMatch(memberKey, inputPassword) {
+  const matchedMember = db.get(memberKey);
+  if (matchedMember.password === inputPassword) return true;
+  return false;
+}
+
+exports.postLogin = (req, res, next) => {
+  const body = req.body;
+
+  let memberKey = findMemberKey(body.userId);
+
+  if (!memberKey) {
+    return res.status(404).json({ message: "아이디 존재하지 않아용" });
+  }
+
+  if (validatePasswordMatch(memberKey, body.password)) {
+    return res.status(200).json({ message: "login 완료" });
+  } else {
+    return res.status(404).json({ message: "비밀번호 틀림요" });
+  }
+};
 
 function findMaxId() {
   let maxId = 0;

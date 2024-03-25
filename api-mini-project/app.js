@@ -4,6 +4,7 @@ const app = express();
 
 const adminRoutes = require("./Routes/adminRoutes");
 const youtuberRoutes = require("./Routes/youtuberRoutes");
+const fruitsRoutes = require("./Routes/fruitsRoutes");
 
 app.listen("8888");
 
@@ -11,4 +12,5 @@ app.listen("8888");
 app.use(express.json());
 
 app.use("/youtubers", youtuberRoutes.router);
+app.use("/fruits", fruitsRoutes.router);
 app.use("/", adminRoutes.router);
