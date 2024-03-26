@@ -2,8 +2,8 @@ const express = require("express");
 
 const app = express();
 
-const membersRoutes = require("./Routes/membersRoutes");
-const channelsRoutes = require("./Routes/channelsRoutes");
+const membersRoutes = require("./Routes/members");
+const channelsRoutes = require("./Routes/channels");
 
 app.listen(8888);
 

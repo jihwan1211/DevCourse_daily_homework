@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const channelsHandlers = require("../Controllers/channelsHandlers");
+const channelsHandlers = require("../Controllers/channels");
 
 router.get("/:id", channelsHandlers.getChannel);
 router.put("/:id", channelsHandlers.putChannel);

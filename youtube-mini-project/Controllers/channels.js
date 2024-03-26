@@ -66,28 +66,33 @@ exports.deleteChannel = (req, res, next) => {
 };
 
 exports.getChannels = (req, res, next) => {
-  const arr = [];
-
   if (!channelDB.size) return res.status(404).json({ message: "저장된 데이터가 없습니다." });
 
+  const { userId } = req.body;
+
+  if (userId === "" || !userId) return res.status(404).json({ message: "userId가 없는뎅 로그인하고 오세용" });
+
+  const arr = [];
+
   channelDB.forEach((ele, key) => {
-    arr.push(ele);
+    if (ele.userId === userId) arr.push(ele);
   });
 
+  if (!arr.length) return res.status(404).json({ message: "당신의 채널은 없어요 만들던가요" });
   res.status(200).json(arr);
 };
 
 exports.postChannel = (req, res, next) => {
   const body = req.body;
-  const { channelTitle } = req.body;
+  const { channelTitle, userId } = req.body;
 
   let errMessage = "";
-
-  if (channelTitle === "") errMessage = "plz enter channel title";
+  if (userId === "" || !userId) errMessage = "userId가 없는뎅 로그인하고 오세용";
+  else if (channelTitle === "") errMessage = "plz enter channel title";
   if (checkDupChannelTitle(channelTitle)) errMessage = "중복된 채널 이름입니다.";
 
   if (errMessage !== "") return res.status(400).json({ message: `${errMessage}` });
 
   channelDB.set(findMaxId(), body);
-  res.status(201).json({ message: `welcome to youtube ${body.channelTitle}!` });
+  res.status(201).json({ message: `${userId}님, welcome to youtube ${channelTitle}!` });
 };
