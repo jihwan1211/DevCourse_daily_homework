@@ -1,83 +1,64 @@
-let db = new Map();
+const dbPool = require("../mariadb");
 
-// {
-//     "userId" : "kim",
-//     "password" : "123",
-//     "name" : "ㅂㅁㅅ"
-// }
+// 에러 코드 분기처리 수정 필요
 
-function findMemberByUserId(inputUserId) {
-  for (let [key, value] of db) {
-    if (value.userId === inputUserId) {
-      return true;
-    }
-  }
-  return false;
-}
+// 로그인
+exports.postLogin = async (req, res, next) => {
+  const { email, pwd } = req.body;
 
-function findMaxId() {
-  let maxId = 0;
-  for (let [key, value] of db) {
-    if (maxId < key) maxId = key;
-  }
-  return maxId + 1;
-}
+  if (!email || !pwd) return res.status(400).json({ message: "not enough information" });
 
-function validatePasswordMatch(userId, inputPassword) {
-  const matchedMember = db.get(userId);
-  if (matchedMember.password === inputPassword) return true;
-  return false;
-}
-
-exports.postLogin = (req, res, next) => {
-  const { userId, password } = req.body;
-
-  if (!findMemberByUserId(userId)) {
-    return res.status(404).json({ message: "아이디 존재하지 않아용" });
-  }
-
-  if (validatePasswordMatch(userId, password)) {
-    return res.status(200).json({ message: "login 완료" });
-  } else {
-    return res.status(404).json({ message: "비밀번호 틀림요" });
+  try {
+    const response = await dbPool.query("SELECT * FROM users WHERE email = ? AND pwd = ?", [email, pwd]);
+    if (response[0].length === 0) throw new Error(`no matched user for email ${email}`);
+    return res.status(200).json(response[0]);
+  } catch (err) {
+    res.status(404).json({ message: err.message });
   }
 };
 
-exports.postJoin = (req, res, next) => {
-  const { userId, password, name } = req.body;
+// 회원가입
+exports.postJoin = async (req, res, next) => {
+  const { email, name, pwd, contact } = req.body;
 
-  if (!userId || !password || !name) res.status(400).json({ message: "not enough information" });
-  else {
-    db.set(userId, req.body);
-    res.status(201).json({ message: `${name}님 환영합니다.` });
+  if (!email || !pwd || !name || !contact) return res.status(400).json({ message: "not enough information" });
+  try {
+    const result = await dbPool.query("INSERT INTO users (email, name, pwd, contact) VALUES (?, ?, ?, ?)", [email, name, pwd, contact]);
+
+    if (result[0].affectedRows > 0) return res.status(201).json({ message: `${name}님 환영합니다.` });
+    else throw new Error("회원가입에 실패하였습니다. 재시도 해주세요.");
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
   }
 };
 
-exports.getUser = (req, res, next) => {
-  // const id = parseInt(req.params.id);
-  const { userId } = req.body;
-  console.log(userId);
-  const user = db.get(userId);
-  if (!user) {
-    res.status(404).json({ message: `no matched user for userId ${userId}` });
-  } else {
-    res.status(200).json({
-      userId: user.userId,
-      name: user.name,
-    });
+// 회원조회
+exports.getUser = async (req, res, next) => {
+  const { email } = req.body;
+
+  try {
+    const response = await dbPool.query("SELECT * FROM users WHERE email = ?", [email]);
+
+    if (response[0].length === 0) throw new Error(`no matched user for userId ${email}`);
+    return res.status(200).json(response[0]);
+  } catch (err) {
+    console.log(err);
+    res.status(404).json({ message: err.message });
   }
 };
 
-exports.deleteUser = (req, res, next) => {
-  const { userId } = req.body;
+// 회원탈퇴
+exports.deleteUser = async (req, res, next) => {
+  const { email } = req.body;
 
-  const user = db.get(userId);
-  if (!user) {
-    res.status(404).json({ message: `no matched user for userId ${id}` });
-  } else {
-    db.delete(userId);
-    res.status(200).json({
-      message: `${user.name}님 담에 봐용`,
-    });
+  if (!email) return res.status(400).json({ message: "not enough information" });
+
+  try {
+    const result = await dbPool.query("DELETE FROM users WHERE email = ? ", [email]);
+
+    if (result[0].affectedRows > 0) return res.status(200).json({ message: `${user.name}님 담에 봐용` });
+    else throw new Error("회원 탈퇴에 실패하였습니다. 재시도 해주세요.");
+  } catch (err) {
+    res.status(404).json({ message: err.message });
   }
 };
