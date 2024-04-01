@@ -1,98 +1,80 @@
-let channelDB = new Map();
+const dbPool = require("../mariadb");
 
-function findMaxId() {
-  let maxId = 0;
-  for (let [key, value] of channelDB) {
-    if (maxId < key) maxId = key;
-  }
-  return maxId + 1;
-}
-
-function checkDupChannelTitle(channelTitle) {
-  for (let [key, value] of channelDB) {
-    if (value.channelTitle === channelTitle) return true;
-  }
-  return false;
-}
-
-function findChannelbyId(channelId) {
-  for (let [key, values] of channelDB) {
-    if (key === channelId) {
-      return true;
-    }
-  }
-  return false;
-}
-
-exports.getChannel = (req, res, next) => {
+exports.getChannel = async (req, res, next) => {
   const id = parseInt(req.params.id);
 
-  if (!findChannelbyId(id)) return res.status(404).json({ message: `no matched channel for ${id}` });
+  try {
+    const [response] = await dbPool.query("SELECT * FROM channels WHERE id = ?", [id]);
 
-  res.status(200).json(channelDB.get(id));
+    if (response.length) return res.status(200).json(response);
+    else throw new Error(`request failed, no matched channel for id ${id}`);
+  } catch (err) {
+    return res.status(404).json({ message: err.message });
+  }
 };
 
-exports.putChannel = (req, res, next) => {
-  const body = req.body;
-  const { newChannelTitle } = req.body;
+exports.putChannel = async (req, res, next) => {
+  const { name } = req.body;
   const id = parseInt(req.params.id);
 
-  if (!findChannelbyId(id)) return res.status(400).json({ message: "plz enter right channel id" });
+  try {
+    const [channel] = await dbPool.query("SELECT * FROM channels WHERE id = ?", [id]);
+    const prevChannelTitle = channel[0].name;
 
-  const channel = channelDB.get(id);
+    const result = await dbPool.query(`UPDATE channels SET name = ? WHERE id = ?`, [name, id]);
+    if (result[0].affectedRows > 0) return res.status(200).json({ message: `${prevChannelTitle} to ${name} changed completed` });
+    else throw new Error("request failed");
+  } catch (err) {
+    res.status(404).json({ message: err.message });
+  }
 
-  let errMessage = "";
-  if (newChannelTitle === "") errMessage = "plz enter channel title";
-
-  if (newChannelTitle === channel.channelTitle) errMessage = "채널 이름이 바뀌지 않았습니다.";
-  else if (checkDupChannelTitle(newChannelTitle)) errMessage = "중복된 채널 이름입니다.";
-
-  if (errMessage !== "") return res.status(400).json({ message: `${errMessage}` });
-
-  const prevChannelTitle = channel.channelTitle;
-  channel.channelTitle = body.newChannelTitle;
-  channelDB.set(id, channel);
-  res.status(200).json({ message: `${prevChannelTitle} to ${newChannelTitle} changed completed` });
+  /*
+  if (checkDupChannelTitle(newChannelTitle)) errMessage = "중복된 채널 이름입니다.";
+  */
 };
 
-exports.deleteChannel = (req, res, next) => {
+exports.deleteChannel = async (req, res, next) => {
+  // 채널 아이디
   const id = parseInt(req.params.id);
 
-  if (!findChannelbyId(id)) return res.status(404).json({ message: `no match for id ${id}` });
+  try {
+    const [channel] = await dbPool.query("SELECT * FROM channels WHERE id = ?", [id]);
+    if (!channel.length) return res.status(404).json({ message: `no channel for id ${id}` });
 
-  const channel = channelDB.get(id);
-  channelDB.delete(id);
-  res.status(200).json({ message: `Good bye ${channel.channelTitle}` });
+    const [result] = await dbPool.query(`DELETE FROM channels WHERE id = ?`, [id]);
+
+    if (result.affectedRows) return res.status(200).json({ message: `Good Bye! ${channel[0].name}` });
+    else throw new Error("request failed");
+  } catch (err) {
+    res.status(404).json({ message: err.message });
+  }
 };
 
-exports.getChannels = (req, res, next) => {
-  if (!channelDB.size) return res.status(404).json({ message: "저장된 데이터가 없습니다." });
+exports.getChannels = async (req, res, next) => {
+  const { user_id } = req.body;
 
-  const { userId } = req.body;
+  if (user_id === "" || !user_id) return res.status(400).json({ message: "userId가 없는뎅 로그인하고 오세용" });
 
-  if (userId === "" || !userId) return res.status(404).json({ message: "userId가 없는뎅 로그인하고 오세용" });
-
-  const arr = [];
-
-  channelDB.forEach((ele, key) => {
-    if (ele.userId === userId) arr.push(ele);
-  });
-
-  if (!arr.length) return res.status(404).json({ message: "당신의 채널은 없어요 만들던가요" });
-  res.status(200).json(arr);
+  try {
+    const [response] = await dbPool.query(`SELECT * FROM channels WHERE user_id = ?`, [user_id]);
+    if (response.length) return res.status(200).json(response);
+    else throw new Error("request failed");
+  } catch (err) {
+    res.status(404).json({ message: err.message });
+  }
 };
 
-exports.postChannel = (req, res, next) => {
-  const body = req.body;
-  const { channelTitle, userId } = req.body;
+exports.postChannel = async (req, res, next) => {
+  const { name, user_id } = req.body;
 
-  let errMessage = "";
-  if (userId === "" || !userId) errMessage = "userId가 없는뎅 로그인하고 오세용";
-  else if (channelTitle === "") errMessage = "plz enter channel title";
-  if (checkDupChannelTitle(channelTitle)) errMessage = "중복된 채널 이름입니다.";
+  try {
+    const [userInfo] = await dbPool.query("SELECT * FROM users WHERE id = ?", [user_id]);
+    if (!userInfo.length) return res.status(404).json({ message: `no user for id ${user_id}` });
 
-  if (errMessage !== "") return res.status(400).json({ message: `${errMessage}` });
-
-  channelDB.set(findMaxId(), body);
-  res.status(201).json({ message: `${userId}님, welcome to youtube ${channelTitle}!` });
+    const [result] = await dbPool.query("INSERT INTO channels (name, user_id) VALUES (?, ?)", [name, user_id]);
+    if (result.affectedRows) return res.status(200).json({ message: `${userInfo[0].name}님, welcome to youtube ${name}!` });
+    else throw new Error("request failed");
+  } catch (err) {
+    res.status(404).json({ message: err.message });
+  }
 };
