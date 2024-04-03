@@ -1,11 +1,13 @@
 const express = require("express");
+const dotenv = require("dotenv");
 
 const app = express();
+dotenv.config();
 
 const membersRoutes = require("./Routes/members");
 const channelsRoutes = require("./Routes/channels");
 
-app.listen(8888);
+app.listen(process.env.PORT);
 
 app.use(express.json());
 
