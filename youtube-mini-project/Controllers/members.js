@@ -24,13 +24,15 @@ exports.postLogin = [
     try {
       const [response] = await dbPool.query("SELECT * FROM users WHERE email = ? AND pwd = ?", [email, pwd]);
       if (response.length === 0) throw new Error(`no matched user for email ${email}`);
-      const token = jwt.sign({ email: response.email, name: response.name }, process.env.PRIVATE_KEY);
+      const token = jwt.sign({ email: response.email, name: response.name }, process.env.PRIVATE_KEY, { expiresIn: "5m", issuer: "kimchi" });
 
       // 원래는 쿠키가 맞음 일단 바뀌는지 확인하기 위해서
-      res.cookie();
-      return res.status(200).json({ response: response, token: token });
+      res.cookie("token", token, {
+        httpOnly: true,
+      });
+      return res.status(200).json({ response: response });
     } catch (err) {
-      res.status(404).json({ message: err.message });
+      res.status(403).json({ message: err.message });
     }
   },
 ];
