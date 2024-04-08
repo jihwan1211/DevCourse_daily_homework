@@ -14,8 +14,10 @@ exports.getChannel = [
   async (req, res, next) => {
     const id = parseInt(req.params.id);
 
+    const sql = "SELECT * FROM channels WHERE id = ?";
+    const params = [id];
     try {
-      const [response] = await dbPool.query("SELECT * FROM channels WHERE id = ?", [id]);
+      const [response] = await dbPool.execute(sql, params);
 
       if (response.length) return res.status(200).json(response);
       else throw new Error(`request failed, no matched channel for id ${id}`);
@@ -34,10 +36,10 @@ exports.putChannel = [
     const id = parseInt(req.params.id);
 
     try {
-      const [channel] = await dbPool.query("SELECT * FROM channels WHERE id = ?", [id]);
+      const [channel] = await dbPool.execute("SELECT * FROM channels WHERE id = ?", [id]);
       const prevChannelTitle = channel[0].name;
 
-      const [result] = await dbPool.query(`UPDATE channels SET name = ? WHERE id = ?`, [name, id]);
+      const [result] = await dbPool.execute(`UPDATE channels SET name = ? WHERE id = ?`, [name, id]);
       if (result.affectedRows > 0) return res.status(200).json({ message: `${prevChannelTitle} to ${name} changed completed` });
       else throw new Error("request failed");
     } catch (err) {
@@ -58,10 +60,10 @@ exports.deleteChannel = [
     const id = parseInt(req.params.id);
 
     try {
-      const [channel] = await dbPool.query("SELECT * FROM channels WHERE id = ?", [id]);
+      const [channel] = await dbPool.execute("SELECT * FROM channels WHERE id = ?", [id]);
       if (!channel.length) return res.status(404).json({ message: `no channel for id ${id}` });
 
-      const [result] = await dbPool.query(`DELETE FROM channels WHERE id = ?`, [id]);
+      const [result] = await dbPool.execute(`DELETE FROM channels WHERE id = ?`, [id]);
 
       if (result.affectedRows) return res.status(200).json({ message: `Good Bye! ${channel[0].name}` });
       else throw new Error("request failed");
@@ -77,8 +79,10 @@ exports.getChannels = [
   async (req, res, next) => {
     const { user_id } = req.body;
 
+    const sql = `SELECT * FROM channels WHERE user_id = ?`;
+    const params = [user_id];
     try {
-      const [response] = await dbPool.query(`SELECT * FROM channels WHERE user_id = ?`, [user_id]);
+      const [response] = await dbPool.execute(sql, params);
 
       if (response.length) return res.status(200).json(response);
       else throw new Error("request failed");
@@ -96,10 +100,10 @@ exports.postChannel = [
     const { name, user_id } = req.body;
 
     try {
-      const [userInfo] = await dbPool.query("SELECT * FROM users WHERE id = ?", [user_id]);
+      const [userInfo] = await dbPool.execute("SELECT * FROM users WHERE id = ?", [user_id]);
       if (!userInfo.length) throw new Error(`no user for id ${user_id}`);
 
-      const [result] = await dbPool.query("INSERT INTO channels (name, user_id) VALUES (?, ?)", [name, user_id]);
+      const [result] = await dbPool.execute("INSERT INTO channels (name, user_id) VALUES (?, ?)", [name, user_id]);
       if (result.affectedRows) return res.status(200).json({ message: `님, welcome to youtube ${name}!` });
       else throw new Error("request failed");
     } catch (err) {

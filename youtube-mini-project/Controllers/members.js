@@ -21,8 +21,12 @@ exports.postLogin = [
   async (req, res, next) => {
     const { email, pwd } = req.body;
 
+    const sql = "SELECT * FROM users WHERE email = ? AND pwd = ?";
+    const params = [email, pwd];
+
     try {
-      const [response] = await dbPool.query("SELECT * FROM users WHERE email = ? AND pwd = ?", [email, pwd]);
+      const [response] = await dbPool.execute(sql, params);
+      // const [response] = await dbPool.execute("SELECT * FROM users WHERE email = ? AND pwd = ?", [email, pwd]);
       if (response.length === 0) throw new Error(`no matched user for email ${email}`);
       const token = jwt.sign({ email: response.email, name: response.name }, process.env.PRIVATE_KEY, { expiresIn: "5m", issuer: "kimchi" });
 
@@ -47,8 +51,10 @@ exports.postJoin = [
   async (req, res, next) => {
     const { email, name, pwd, contact } = req.body;
 
+    const sql = "INSERT INTO users (email, name, pwd, contact) VALUES (?, ?, ?, ?)";
+    const params = [email, name, pwd, contact];
     try {
-      const [result] = await dbPool.query("INSERT INTO users (email, name, pwd, contact) VALUES (?, ?, ?, ?)", [email, name, pwd, contact]);
+      const [result] = await dbPool.execute(sql, params);
 
       if (result.affectedRows > 0) return res.status(201).json({ message: `${name}님 환영합니다.` });
       else throw new Error("회원가입에 실패하였습니다. 재시도 해주세요.");
@@ -65,8 +71,10 @@ exports.getUser = [
   async (req, res, next) => {
     const { email } = req.body;
 
+    const sql = "SELECT * FROM users WHERE email = ?";
+    const params = [email];
     try {
-      const [response] = await dbPool.query("SELECT * FROM users WHERE email = ?", [email]);
+      const [response] = await dbPool.execute(sql, params);
 
       if (response.length === 0) throw new Error(`no matched user for userId ${email}`);
       return res.status(200).json(response);
@@ -84,8 +92,10 @@ exports.deleteUser = [
   async (req, res, next) => {
     const { email } = req.body;
 
+    const sql = "DELETE FROM users WHERE email = ? ";
+    const params = [email];
     try {
-      const [result] = await dbPool.query("DELETE FROM users WHERE email = ? ", [email]);
+      const [result] = await dbPool.execute(sql, params);
 
       if (result.affectedRows > 0) return res.status(200).json({ message: `${user.name}님 담에 봐용` });
       else throw new Error("회원 탈퇴에 실패하였습니다. 재시도 해주세요.");
