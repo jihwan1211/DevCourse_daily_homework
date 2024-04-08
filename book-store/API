@@ -51,18 +51,19 @@
         - Request Body :
         - Response Body : [{book_id, img_url, title, summary, author, price, likes, publish_date}, …{}]
 
-        - 좋아요 API 설계 1차
+## 좋아요 API 설계 1차
+
     1. 좋아요 추가
-        - Method : PUT
+        - Method : POST
         - URL : /likes/:bookId
-        - HTTP Status code : 성공(200), 실패
-        - Request Body : user_id
+        - HTTP Status code : 성공(201), 실패
+        - Request Body : 
         - Response Body : []
     2. 좋아요 취소
-        - Method : PUT
+        - Method : DELETE
         - URL : /likes/:bookId
         - HTTP Status code : 성공(200), 실패
-        - Request Body : user_id
+        - Request Body : 
         - Response Body : []
 
 ---
@@ -71,30 +72,49 @@
 
     1. 장바구니 담기
         - Method : POST
-        - URL : /cart
+        - URL : /carts
         - HTTP Status code : 성공(201 - inserted, created), 실패
         - Request Body : {book_id, count : 도서 수량}
         - Response Body :
     2. 장바구니 조회
         - Method : GET
-        - URL : /cart
+        - URL : /carts
         - HTTP Status code : 성공(200), 실패
         - Request Body :
         - Response Body : [{cart_item_id : 장바구니 항목 id, book_id, title, summary, price, img_url, count : 도서 수량}, …{}]
     3. 장바구니 삭제
         - Method : DELETE
-        - URL : /cart/:bookId
+        - URL : /carts/:bookId
         - HTTP Status code : 성공(200), 실패
         - Request Body :
         - Response Body :
+    4. 장바구니에서 선택한 상품 목록 조회
+        - Method : GET
+        - URL : /carts
+        - HTTP Status code : 성공(200), 실패
+        - Request Body : [{cart_item_id}, ...{}]
+        - Response Body : [{cart_item_id : 장바구니 항목 id, book_id, title, summary, price, img_url, count : 도서 수량}, …{}]
+
 
 ---
 
-## 주문 API 설계
+## 주문(결제) API 설계
 
-    1. 장바구니에서 선택한 상품 목록 조회
+    1. 결제하기(주문하기)
+        - Method : POST
+        - URL : /orders
+        - HTTP Status code : 성공(201), 실패
+        - Request Body : [{items: [{ cart_item_id, book_id, count:책 개수} ...], delivery : {address, name, contact}, total_price, }]
+        - Response Body : []
+    2. 주문 목록 조회
         - Method : GET
-        - URL : /cart
+        - URL : /orders
         - HTTP Status code : 성공(200), 실패
         - Request Body : []
-        - Response Body : [{cart_item_id : 장바구니 항목 id, book_id, title, summary, price, img_url, count : 도서 수량}, …{}]
+        - Response Body : [{order_id, createdAt, delivery : {address, name, contact}, book_title, total_price, total_count}, ...{}]
+    3. 주문 상세 상품 조회
+        - Method : GET
+        - URL : /orders/:order_id
+        - HTTP Status code : 성공(200), 실패
+        - Request Body : []
+        - Response Body : [{book_id, book_title, author, img_url, price, summary, count}, ...{}]
