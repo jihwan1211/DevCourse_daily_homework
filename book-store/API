@@ -11,18 +11,19 @@
         - URL : /users/login
         - HTTP Status code : 성공(200), 실패
         - Request Body : JSON형태, email, password
-        - Response Body : JWT Token
+        - Response Cookie : JWT Token 
+        - Response Body : 
     3. 비밀번호 초기화 요청
         - Method : POST
         - URL : /users/reset
         - HTTP Status code : 성공(200), 실패
         - Request Body : JSON형태, email
-        - Response Body :
+        - Response Body : email
     4. 비밀번호 초기화
         - Method : PUT
         - URL : /users/reset
         - HTTP Status code : 성공(200), 실패
-        - Request Body : JSON형태, password1, password2
+        - Request Body : JSON형태, email(이전 페이지에서 입력했던 이메일), password1, password2
         - Response Body :
 
 ---
