@@ -6,7 +6,7 @@ const dotenv = require("dotenv");
 const crypto = require("crypto");
 
 dotenv.config();
-
+// 김지환
 const validateRequest = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(StatusCodes.BAD_REQUEST).json({ message: errors.array() });

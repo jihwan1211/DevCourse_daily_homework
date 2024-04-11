@@ -6,6 +6,7 @@ const booksRoutes = require("./routes/books");
 const likesRoutes = require("./routes/likes");
 const cartsRoutes = require("./routes/carts");
 const ordersRoutes = require("./routes/orders");
+const categoryRoutes = require("./routes/category");
 
 const app = express();
 dotenv.config();
@@ -17,3 +18,4 @@ app.use("/books", booksRoutes.router);
 app.use("/likes", likesRoutes.router);
 app.use("/carts", cartsRoutes.router);
 app.use("/orders", ordersRoutes.router);
+app.use("/category", categoryRoutes.router);

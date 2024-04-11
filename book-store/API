@@ -35,13 +35,13 @@
         - URL : /books
         - HTTP Status code : 성공(200), 실패
         - Request Body :
-        - Response Body : [{book_id, img_url, title, summary, author, price, likes, publish_date}, …{}]
+        - Response Body : [{book_id, img(img_id), title, summary, author, price, likes, publish_date}, …{}]
     2. 개별 도서 조회
         - Method : GET
         - URL : /books/:bookId
         - HTTP Status code : 성공(200), 실패
         - Request Body :
-        - Response Body : {img_url, title, category, format, isbn, summary, descripiton, author, pages, index, price, likes, me_liked, images: [], publish_date}
+        - Response Body : {img(img_id), title, category, format, isbn, summary, descripiton, author, pages, index, price, likes, me_liked, images: [], publish_date}
     3. 카테고리별 도서 목록 조회
 
         new:true → 신간 조회(출판일 30일 이내)
@@ -52,7 +52,17 @@
         - Request Body :
         - Response Body : [{book_id, img_url, title, summary, author, price, likes, publish_date}, …{}]
 
-## 좋아요 API 설계 1차
+---
+
+## 카테고리 API
+    1. 카테고리 전체 조회
+        - Method : GET
+        - URL : /category
+        - HTTP Status code : 성공(200), 실패
+        - Request Body :
+        - Response Body : [{id, name}, ...{}]
+
+## 좋아요 API 
 
     1. 좋아요 추가
         - Method : POST
