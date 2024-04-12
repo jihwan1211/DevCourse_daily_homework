@@ -26,7 +26,7 @@ CREATE TABLE books (
 );
 
 CREATE TABLE category (
-    id INT NOT NULL AUTO_INCREMENT,
+    id INT NOT NULL,
     name VARCHAR(45) NOT NULL,
     PRIMARY KEY(id)
 )

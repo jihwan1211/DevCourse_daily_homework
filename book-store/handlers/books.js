@@ -1,11 +1,11 @@
 const dbPool = require("../mariadb");
-const { StatusCodes } = require("http-status-codes");
+const { StatusCodes, GONE } = require("http-status-codes");
 const { body, param, validationResult } = require("express-validator");
 const dotenv = require("dotenv");
 
 const validateRequest = (req, res, next) => {
   const errors = validationResult(req);
-  if (!errors.isEmpty) return res.status(StatusCodes.BAD_REQUEST).json({ message: errors.array() });
+  if (!errors.isEmpty()) return res.status(StatusCodes.BAD_REQUEST).json({ message: errors.array() });
   next();
 };
 
@@ -14,7 +14,12 @@ exports.getBook = [
   validateRequest,
   async (req, res, next) => {
     const id = parseInt(req.params.bookId);
-    const sql = `SELECT * FROM books WHERE books.id = ?`;
+    const sql = `
+      SELECT * FROM books 
+      LEFT JOIN category
+      ON books.category_id = category.id
+      WHERE books.id = ?
+      `;
     const params = [id];
     try {
       const [response] = await dbPool.execute(sql, params);
@@ -26,32 +31,38 @@ exports.getBook = [
   },
 ];
 
-exports.checkHandler = (req, res, next) => {
+exports.checkHandler = async (req, res, next) => {
   const category_id = req.query.category_id;
-  if (category_id) {
-    getBooksByCategory(req, res, next);
-  } else {
-    getBooks(req, res, next);
-  }
-};
+  let isNew = req.query.new;
+  if (isNew) isNew = JSON.parse(req.query.new);
+  const limit = parseInt(req.query.limit);
+  const page = parseInt(req.query.page);
 
-const getBooksByCategory = async (req, res, next) => {
-  const category_id = parseInt(req.query.category_id);
-  const sql = `SELECT * FROM books WHERE category_id = ?`;
-  const params = [category_id];
+  let sql = `SELECT * FROM books`;
+  let params = [];
+
+  if (category_id && isNew) {
+    sql += `
+      WHERE category_id = ?
+      AND pub_date 
+      BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()
+    `;
+    params.push(parseInt(category_id));
+  } else if (category_id && !isNew) {
+    sql += ` WHERE category_id = ?`;
+    params.push(parseInt(category_id));
+  } else if (!category_id && isNew) {
+    sql += `
+      WHERE pub_date 
+      BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()
+    `;
+  }
+
+  sql += ` LIMIT ?, ?`;
+  params.push((page - 1) * limit, limit);
   try {
     const [response] = await dbPool.execute(sql, params);
     if (!response.length) return res.status(StatusCodes.NOT_FOUND).end();
-    return res.status(StatusCodes.OK).json(response);
-  } catch (err) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
-  }
-};
-
-const getBooks = async (req, res, next) => {
-  const sql = `SELECT id, title, summary, author, price, pub_date FROM books`;
-  try {
-    const [response] = await dbPool.execute(sql);
     return res.status(StatusCodes.OK).json(response);
   } catch (err) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
