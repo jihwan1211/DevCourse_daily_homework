@@ -10,17 +10,22 @@ const validateRequest = (req, res, next) => {
 };
 
 exports.getBook = [
-  param("id").notEmpty().isString().withMessage("도서 아이디를 입력하세요"),
+  param("bookId").notEmpty().isString().withMessage("도서 아이디를 입력하세요"),
   validateRequest,
   async (req, res, next) => {
-    const id = parseInt(req.params.bookId);
+    const book_id = parseInt(req.params.bookId);
+    const user_id = parseInt(req.body.user_id);
+
     const sql = `
-      SELECT * FROM books 
+      SELECT *, 
+      (SELECT count(*) FROM likes WHERE book_id = books.id) AS likes, 
+      (SELECT EXISTS (SELECT * FROM likes WHERE user_id = ? AND book_id = ?)) AS liked
+      FROM books 
       LEFT JOIN category
-      ON books.category_id = category.id
+      ON books.category_id = category.category_id
       WHERE books.id = ?
       `;
-    const params = [id];
+    const params = [user_id, book_id, book_id];
     try {
       const [response] = await dbPool.execute(sql, params);
       if (!response.length) return res.status(StatusCodes.NOT_FOUND).end();
@@ -38,7 +43,7 @@ exports.checkHandler = async (req, res, next) => {
   const limit = parseInt(req.query.limit);
   const page = parseInt(req.query.page);
 
-  let sql = `SELECT * FROM books`;
+  let sql = `SELECT *, (SELECT count(*) FROM likes WHERE book_id = books.id) AS likes FROM books`;
   let params = [];
 
   if (category_id && isNew) {

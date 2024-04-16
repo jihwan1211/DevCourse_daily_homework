@@ -66,7 +66,7 @@
         - Method : POST
         - URL : /likes/:bookId
         - HTTP Status code : 성공(201), 실패
-        - Request Body : 
+        - Request Body : header(token)
         - Response Body : []
     2. 좋아요 취소
         - Method : DELETE
@@ -93,7 +93,7 @@
         - Response Body : [{cart_item_id : 장바구니 항목 id, book_id, title, summary, price, img_url, count : 도서 수량}, …{}]
     3. 장바구니 삭제
         - Method : DELETE
-        - URL : /carts/:bookId
+        - URL : /carts/:cartId
         - HTTP Status code : 성공(200), 실패
         - Request Body :
         - Response Body :
@@ -104,6 +104,7 @@
         - Request Body : [{cart_item_id}, ...{}]
         - Response Body : [{cart_item_id : 장바구니 항목 id, book_id, title, summary, price, img_url, count : 도서 수량}, …{}]
 
+-> 2, 4를 selected 상품 데이터의 유무에 따라 다른 동작을 하도록 합치기
 
 ---
 

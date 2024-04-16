@@ -26,7 +26,26 @@ CREATE TABLE books (
 );
 
 CREATE TABLE category (
-    id INT NOT NULL,
+    category_id INT NOT NULL,
     name VARCHAR(45) NOT NULL,
     PRIMARY KEY(id)
 )
+
+CREATE TABLE likes (
+    id INT NOT NULL UNIQUE AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    book_id INT NOT NULL,
+    PRIMARY KEY(id),
+    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(book_id) REFERENCES books(id)
+);
+
+CREATE TABLE cartItems (
+    id INT NOT NULL UNIQUE AUTO_INCREMENT,
+    book_id INT NOT NULL, 
+    quantity INT NOT NULL DEFAULT 1,
+    user_id INT NOT NULL,
+    PRIMARY KEY(id),
+    FOREIGN KEY(book_id) REFERENCES books(id),
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
