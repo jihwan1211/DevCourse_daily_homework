@@ -49,3 +49,34 @@ CREATE TABLE cartItems (
     FOREIGN KEY(book_id) REFERENCES books(id),
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
+
+CREATE TABLE delivery (
+    id INT NOT NULL UNIQUE AUTO_INCREMENT,
+    user_address VARCHAR(500) NOT NULL,
+    username VARCHAR(50) NOT NULL,
+    contact VARCHAR(50) NOT NULL,
+    PRIMARY KEY(id)
+)
+
+CREATE TABLE orders (
+    id INT NOT NULL UNIQUE AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    delivery_id INT NOT NULL,
+    book_title VARCHAR(100) NOT NULL,
+    total_price INT NOT NULL,
+    total_quantity INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY(id),
+    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(delivery_id) REFERENCES delivery(id)
+);
+
+CREATE TABLE orderedBook (
+    id INT NOT NULL AUTO_INCREMENT,
+    order_id INT NOT NULL,
+    book_id INT NOT NULL,
+    quantity INT NOT NULL,
+    PRIMARY KEY(id),
+    FOREIGN KEY(order_id) REFERENCES orders(id),
+    FOREIGN KEY(book_id) REFERENCES books(id)
+);
