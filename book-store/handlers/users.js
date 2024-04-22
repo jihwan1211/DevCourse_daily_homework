@@ -4,6 +4,8 @@ const { body, param, validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const crypto = require("crypto");
+const jwtUtils = require("../jwt-utils");
+const redisClient = require("../redis");
 
 dotenv.config();
 // 김지환
@@ -37,11 +39,6 @@ exports.join = [
   },
 ];
 
-function createToken(response) {
-  const token = jwt.sign({ email: response.email }, process.env.PRIVATE_KEY, { expiresIn: "5m", issuer: "kimchi" });
-  return token;
-}
-
 const checkPwdMatched = (userPassword, inputPassword, salt) => {
   const hasedPwd = crypto.pbkdf2Sync(inputPassword, salt, 10000, 10, "sha512").toString("base64");
   return userPassword === hasedPwd;
@@ -62,8 +59,15 @@ exports.login = [
 
       if (!response.length || !checkPwdMatched(user.password, password, user.salt)) throw new Error("이메일 혹은 비밀번호 틀림 ㅋ");
 
-      const token = createToken(user);
-      res.cookie("token", token, {
+      const accessToken = jwtUtils.signIn({ id: user.id, email: user.email });
+      const refreshToken = jwtUtils.refresh();
+
+      redisClient.set(user.id, refreshToken);
+
+      res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+      });
+      res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
       });
       return res.status(StatusCodes.OK).json({ message: `${response[0].email}님 환영` });

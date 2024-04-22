@@ -2,12 +2,13 @@ const dbPool = require("../mariadb");
 const { StatusCodes } = require("http-status-codes");
 const { body, param, validationResult } = require("express-validator");
 const dotenv = require("dotenv");
-// 김지환
-exports.deleteCart = async (req, res, next) => {
-  const cart_id = parseInt(req.params.cartId);
 
-  const sql = `DELETE FROM cartItems WHERE cartItems.id = ?`;
-  const params = [cart_id];
+exports.deleteCart = async (req, res, next) => {
+  const cartId = parseInt(req.params.cartId);
+  const userId = req.id;
+
+  const sql = `DELETE FROM cartItems WHERE user_id = ? AND cartItems.id = ?`;
+  const params = [userId, cartId];
   try {
     const [result] = await dbPool.execute(sql, params);
     if (!result.affectedRows) throw new Error(`삭제 실패 failed`);
@@ -20,7 +21,7 @@ exports.deleteCart = async (req, res, next) => {
 exports.postAddCart = async (req, res, next) => {
   const bookId = parseInt(req.body.book_id);
   const quantity = parseInt(req.body.quantity);
-  const userId = parseInt(req.body.user_id);
+  const userId = req.id;
 
   const sql = `INSERT INTO cartItems (book_id, quantity, user_id) VALUES (?, ?, ?)`;
   const params = [bookId, quantity, userId];
@@ -32,9 +33,9 @@ exports.postAddCart = async (req, res, next) => {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: err.message });
   }
 };
-// 김지환
+
 exports.getCarts = async (req, res, next) => {
-  const user_id = parseInt(req.body.user_id);
+  const userId = req.id;
   const selected = req.body.selected;
 
   let sql = `
@@ -42,7 +43,7 @@ exports.getCarts = async (req, res, next) => {
     LEFT JOIN books
     ON books.id = cartItems.book_id
     WHERE cartItems.user_id = ?`;
-  const params = [user_id];
+  const params = [userId];
 
   if (selected) {
     sql += `
