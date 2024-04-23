@@ -19,5 +19,5 @@ app.use("/users", usersRoutes.router);
 app.use("/books", booksRoutes.router);
 app.use("/likes", authJWT, likesRoutes.router);
 app.use("/carts", authJWT, cartsRoutes.router);
-app.use("/orders", ordersRoutes.router);
+app.use("/orders", authJWT, ordersRoutes.router);
 app.use("/category", categoryRoutes.router);

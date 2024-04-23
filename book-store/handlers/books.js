@@ -1,7 +1,6 @@
 const dbPool = require("../mariadb");
-const { StatusCodes, GONE } = require("http-status-codes");
+const { StatusCodes } = require("http-status-codes");
 const { body, param, validationResult } = require("express-validator");
-const dotenv = require("dotenv");
 
 const validateRequest = (req, res, next) => {
   const errors = validationResult(req);
@@ -9,14 +8,31 @@ const validateRequest = (req, res, next) => {
   next();
 };
 
+/* 
+토큰이 없는 상태로 로그인 했을 때
+화면에서 로그인 하실? 과 로그인 안 함 2가지 선택권 주자.
+로그인 안 하면 liked 빼고 주자
+*/
 exports.getBook = [
   param("bookId").notEmpty().isString().withMessage("도서 아이디를 입력하세요"),
   validateRequest,
   async (req, res, next) => {
-    const book_id = parseInt(req.params.bookId);
-    const user_id = parseInt(req.body.user_id);
-
-    const sql = `
+    const bookId = parseInt(req.params.bookId);
+    const userId = req.id;
+    console.log(userId);
+    let sql = ``;
+    const params = [bookId];
+    if (!userId) {
+      sql = `
+      SELECT *, 
+      (SELECT count(*) FROM likes WHERE book_id = books.id) AS likes
+      FROM books 
+      LEFT JOIN category
+      ON books.category_id = category.category_id
+      WHERE books.id = ?
+      `;
+    } else {
+      sql = `
       SELECT *, 
       (SELECT count(*) FROM likes WHERE book_id = books.id) AS likes, 
       (SELECT EXISTS (SELECT * FROM likes WHERE user_id = ? AND book_id = ?)) AS liked
@@ -25,7 +41,9 @@ exports.getBook = [
       ON books.category_id = category.category_id
       WHERE books.id = ?
       `;
-    const params = [user_id, book_id, book_id];
+      params.unshift(userId);
+      params.push(bookId);
+    }
     try {
       const [response] = await dbPool.execute(sql, params);
       if (!response.length) return res.status(StatusCodes.NOT_FOUND).end();
@@ -43,7 +61,7 @@ exports.checkHandler = async (req, res, next) => {
   const limit = parseInt(req.query.limit);
   const page = parseInt(req.query.page);
 
-  let sql = `SELECT *, (SELECT count(*) FROM likes WHERE book_id = books.id) AS likes FROM books`;
+  let sql = `SELECT SQL_CALC_FOUND_ROWS *, (SELECT count(*) FROM likes WHERE book_id = books.id) AS likes FROM books`;
   let params = [];
 
   if (category_id && isNew) {
@@ -68,7 +86,10 @@ exports.checkHandler = async (req, res, next) => {
   try {
     const [response] = await dbPool.execute(sql, params);
     if (!response.length) return res.status(StatusCodes.NOT_FOUND).end();
-    return res.status(StatusCodes.OK).json(response);
+
+    const [booksCnt] = await dbPool.execute(`SELECT found_rows()`);
+    console.log("bookscnt : ", booksCnt[0]["found_rows()"]);
+    return res.status(StatusCodes.OK).json({ books: response, pagination: { totalBooksCnt: booksCnt[0]["found_rows()"], currentPage: page } });
   } catch (err) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
   }

@@ -1,26 +1,12 @@
 const dbPool = require("../mariadb");
-const jwt = require("jsonwebtoken");
 const { StatusCodes } = require("http-status-codes");
 const { body, param, validationResult } = require("express-validator");
-const dotenv = require("dotenv");
-const jwtUtils = require("../jwt-utils");
-dotenv.config();
-
-const validateJWT = (req) => {
-  const JWT = req.headers["authorization"];
-
-  console.log("jwt : ", JWT);
-  const decodedJWT = jwt.decode(JWT, process.env.PRIVATE_KEY);
-  console.log("decode : ", decodedJWT);
-  return decodedJWT;
-};
 
 exports.addLike = [
   async (req, res, next) => {
     const book_id = parseInt(req.params.bookId);
-    // const auth = validateJWT(req);
     const user_id = req.id;
-    console.log("user_id : ", user_id);
+
     const sql = `INSERT INTO likes (user_id, book_id) VALUES (?, ?)`;
     const params = [user_id, book_id];
     try {

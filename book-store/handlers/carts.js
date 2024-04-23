@@ -1,7 +1,6 @@
 const dbPool = require("../mariadb");
 const { StatusCodes } = require("http-status-codes");
 const { body, param, validationResult } = require("express-validator");
-const dotenv = require("dotenv");
 
 exports.deleteCart = async (req, res, next) => {
   const cartId = parseInt(req.params.cartId);
@@ -17,8 +16,8 @@ exports.deleteCart = async (req, res, next) => {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: err.message });
   }
 };
-// 장바구니 담기
-exports.postAddCart = async (req, res, next) => {
+
+exports.addCart = async (req, res, next) => {
   const bookId = parseInt(req.body.book_id);
   const quantity = parseInt(req.body.quantity);
   const userId = req.id;
