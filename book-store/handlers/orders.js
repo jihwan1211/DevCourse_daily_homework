@@ -1,5 +1,6 @@
 const dbPool = require("../mariadb");
 const { StatusCodes } = require("http-status-codes");
+const snakeToCamel = require("../utils/snakeToCamel");
 
 const insertDelivery = async (delivery) => {
   const sql = `INSERT INTO delivery (user_address, username, contact) VALUES (?, ?, ?)`;
@@ -77,10 +78,11 @@ exports.getOrderList = async (req, res, next) => {
   ON orders.delivery_id = delivery.id
   WHERE orders.user_id = ?`;
   try {
-    const [result] = await dbPool.execute(sql, [userId]);
+    const [response] = await dbPool.execute(sql, [userId]);
 
-    if (!result.length) throw new Error(`주문 내역 조회 실패`);
-    return res.status(StatusCodes.OK).json(result);
+    if (!response.length) throw new Error(`주문 내역 조회 실패`);
+    const camelResponse = snakeToCamel(response);
+    return res.status(StatusCodes.OK).json(camelResponse);
   } catch (err) {}
 };
 
@@ -92,8 +94,8 @@ exports.getOrderInfo = async (req, res, next) => {
   ON orderedBook.book_id = books.id
   WHERE orderedBook.order_id = ?`;
   try {
-    const [result] = await dbPool.execute(sql, [orderId]);
-    if (!result.length) throw new Error(`주문 상세내역 조회 실패`);
-    return res.status(StatusCodes.OK).json(result);
+    const [response] = await dbPool.execute(sql, [orderId]);
+    if (!response.length) throw new Error(`주문 상세내역 조회 실패`);
+    return res.status(StatusCodes.OK).json(response);
   } catch (err) {}
 };

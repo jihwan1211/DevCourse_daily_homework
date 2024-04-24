@@ -1,6 +1,7 @@
 const dbPool = require("../mariadb");
 const { StatusCodes } = require("http-status-codes");
 const { body, param, validationResult } = require("express-validator");
+const snakeToCamel = require("../utils/snakeToCamel");
 
 const validateRequest = (req, res, next) => {
   const errors = validationResult(req);
@@ -8,11 +9,6 @@ const validateRequest = (req, res, next) => {
   next();
 };
 
-/* 
-토큰이 없는 상태로 로그인 했을 때
-화면에서 로그인 하실? 과 로그인 안 함 2가지 선택권 주자.
-로그인 안 하면 liked 빼고 주자
-*/
 exports.getBook = [
   param("bookId").notEmpty().isString().withMessage("도서 아이디를 입력하세요"),
   validateRequest,
@@ -47,7 +43,9 @@ exports.getBook = [
     try {
       const [response] = await dbPool.execute(sql, params);
       if (!response.length) return res.status(StatusCodes.NOT_FOUND).end();
-      return res.status(StatusCodes.OK).json(response[0]);
+      const camelCaseResult = snakeToCamel(response);
+
+      return res.status(StatusCodes.OK).json(camelCaseResult[0]);
     } catch (err) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: err.message });
     }
@@ -87,9 +85,10 @@ exports.checkHandler = async (req, res, next) => {
     const [response] = await dbPool.execute(sql, params);
     if (!response.length) return res.status(StatusCodes.NOT_FOUND).end();
 
+    const camelCaseResult = snakeToCamel(response);
     const [booksCnt] = await dbPool.execute(`SELECT found_rows()`);
-    console.log("bookscnt : ", booksCnt[0]["found_rows()"]);
-    return res.status(StatusCodes.OK).json({ books: response, pagination: { totalBooksCnt: booksCnt[0]["found_rows()"], currentPage: page } });
+
+    return res.status(StatusCodes.OK).json({ books: camelCaseResult, pagination: { totalBooksCnt: booksCnt[0]["found_rows()"], currentPage: page } });
   } catch (err) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
   }

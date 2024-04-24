@@ -8,7 +8,7 @@ const jwtUtils = require("../jwt-utils");
 const redisClient = require("../redis");
 
 dotenv.config();
-// 김지환
+
 const validateRequest = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(StatusCodes.BAD_REQUEST).json({ message: errors.array() });
@@ -104,17 +104,17 @@ exports.passwordReset = [
     const { password, passwordCheck, email } = req.body;
 
     if (password !== passwordCheck) return res.status(StatusCodes.BAD_REQUEST).json({ message: "수정하려는 비밀번호가 일치하지 않습니다." });
-    // salt도 새로 초기화 -> user select가 필요 없음
+
     const { hasedPwd, salt } = makeCrypPwd(password);
     const sql = `UPDATE users SET password = ?, salt = ? WHERE email = ?`;
     const params = [hasedPwd, salt, email];
     try {
       const [response] = await dbPool.execute(sql, params);
       console.log(response);
-      if (!response.affectedRows) throw new Error("서버 에러");
+      if (!response.affectedRows) throw new Error("에러");
       return res.status(StatusCodes.OK).json({ message: `${email}님 비밀번호 변경 완료` });
     } catch (err) {
-      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: err.message });
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: err.message });
     }
   },
 ];

@@ -1,6 +1,7 @@
 const dbPool = require("../mariadb");
 const { StatusCodes } = require("http-status-codes");
 const { body, param, validationResult } = require("express-validator");
+const snakeToCamel = require("../utils/snakeToCamel");
 
 exports.deleteCart = async (req, res, next) => {
   const cartId = parseInt(req.params.cartId);
@@ -53,8 +54,9 @@ exports.getCarts = async (req, res, next) => {
   try {
     const [response] = await dbPool.query(sql, params);
     if (!response.length) return res.status(StatusCodes.NOT_FOUND).end();
-    return res.status(StatusCodes.OK).json(response);
+    const camelResponse = snakeToCamel(response);
+    return res.status(StatusCodes.OK).json(camelResponse);
   } catch (err) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: err.message });
+    return res.status(StatusCodes.BAD_REQUEST).json({ message: err.message });
   }
 };
