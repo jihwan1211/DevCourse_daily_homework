@@ -9,7 +9,9 @@ const insertDelivery = async (delivery) => {
     const [result] = await dbPool.execute(sql, params);
     if (!result.affectedRows) throw new Error(`배송 테이블 추가 실패 failed`);
     return result.insertId;
-  } catch (err) {}
+  } catch (err) {
+    throw err;
+  }
 };
 
 const insertOrder = async ({ userId, deliveryId, cartItems, totalPrice, totalQuantity }) => {
@@ -67,7 +69,7 @@ exports.postOrder = async (req, res, next) => {
     await insertOrderedBook({ orderId, orderBookInfo });
     await deleteCartItem({ cartItems, res });
   } catch (err) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: err.message });
+    return res.status(StatusCodes.BAD_REQUEST).json({ message: err.message });
   }
 };
 
@@ -97,5 +99,7 @@ exports.getOrderInfo = async (req, res, next) => {
     const [response] = await dbPool.execute(sql, [orderId]);
     if (!response.length) throw new Error(`주문 상세내역 조회 실패`);
     return res.status(StatusCodes.OK).json(response);
-  } catch (err) {}
+  } catch (err) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ message: err.message });
+  }
 };

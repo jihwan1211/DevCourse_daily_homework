@@ -14,7 +14,7 @@ exports.deleteCart = async (req, res, next) => {
     if (!result.affectedRows) throw new Error(`삭제 실패 failed`);
     return res.status(StatusCodes.CREATED).json({ message: `장바구니 삭제 완료` });
   } catch (err) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: err.message });
+    return res.status(StatusCodes.BAD_REQUEST).json({ message: err.message });
   }
 };
 
@@ -30,7 +30,7 @@ exports.addCart = async (req, res, next) => {
     if (!result.affectedRows) throw new Error(`회원가입 실패 failed`);
     return res.status(StatusCodes.CREATED).json({ message: `장바구니 추가 완료` });
   } catch (err) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: err.message });
+    return res.status(StatusCodes.BAD_REQUEST).json({ message: err.message });
   }
 };
 

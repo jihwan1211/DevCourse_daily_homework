@@ -47,7 +47,7 @@ exports.getBook = [
 
       return res.status(StatusCodes.OK).json(camelCaseResult[0]);
     } catch (err) {
-      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: err.message });
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: err.message });
     }
   },
 ];
@@ -90,6 +90,6 @@ exports.checkHandler = async (req, res, next) => {
 
     return res.status(StatusCodes.OK).json({ books: camelCaseResult, pagination: { totalBooksCnt: booksCnt[0]["found_rows()"], currentPage: page } });
   } catch (err) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
+    return res.status(StatusCodes.BAD_REQUEST).end();
   }
 };
