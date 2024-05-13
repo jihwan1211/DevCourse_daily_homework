@@ -1,0 +1,20 @@
+const express = require("express");
+const app = express();
+const controller = require("./controller");
+const PORT = 5678;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+app.use(express.json());
+app.get("/api/v1/user-info", controller.p1);
+app.get("/api/v1/hello-world", controller.p2);
+app.post("/api/v1/odd-or-even", controller.p3);
+app.get("/api/v1/current-date", controller.p5);
+app.post("/api/v1/echo", controller.p6);
+app.get("/api/v1/posts/count", controller.p7);
+app.get("/api/v1/user-email/:userId", controller.p8);
+app.get("/api/v1/user-posts/:userId", controller.p9);
+app.put("/api/v1/posts/:postId", controller.p10);
+app.get("/api/v1/users/:userId/posts", controller.p12);
+app.post("/api/v1/posts/:postId/comments", controller.p13);
+app.get("/api/v1/users/:userId/activity-report", controller.p14);
