@@ -5,7 +5,7 @@ export interface ITask {
   taskOwner: string;
 }
 
-export type ModalState = {
+export type TModalState = {
   boardId: string;
   listId: string;
   task: ITask;
@@ -18,13 +18,16 @@ export interface ILogItem {
   logTimestamp: string;
 }
 
-export type loggerState = {
+export type TLoggerState = {
   logArr: ILogItem[];
 };
+
+//-----
 
 export type TBoardState = {
   modalActive: boolean;
   boardArray: IBoard[];
+  setBoard: (board: IBoard) => void;
 };
 
 export interface IBoard {
@@ -38,26 +41,3 @@ export interface IList {
   listName: string;
   tasks: ITask[];
 }
-
-// ini
-// export type BoardState = {
-//   modalActive: false;
-//   boradArray: [
-//     list: [
-//       task: [
-//         {
-//           taskId: "list-0";
-//           taskName: "Task 1";
-//           taskDescription: "Description";
-//           taskOwner: "John";
-//         },
-//         {
-//           taskId: "list-1";
-//           taskName: "Task 2";
-//           taskDescription: "Description 2";
-//           taskOwner: "Kim";
-//         }
-//       ]
-//     ]
-//   ];
-// };

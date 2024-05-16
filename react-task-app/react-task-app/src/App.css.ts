@@ -1,6 +1,6 @@
 import { createGlobalTheme, style } from "@vanilla-extract/css";
 
-const vars = createGlobalTheme(":root", {
+export const globalStyle = createGlobalTheme(":root", {
   color: {
     main: "#ffa726",
     mainDarker: "#f57c00",
@@ -47,8 +47,8 @@ export const appContainer = style({
   flexDirection: "column",
   minHeight: "100vh",
   height: "max-content",
-  width: "100vw",
+  width: "100dvw",
 });
 
-export const board = style({ display: "flex", flexDirection: "row", height: "100%" });
-export const buttons = style({ marginTop: "auto", paddingLeft: vars.spacing.big2 });
+export const board = style({ display: "flex", flexDirection: "row", height: "100%", width: "100dvw" });
+export const buttons = style({ marginTop: "auto", paddingLeft: globalStyle.spacing.big2 });
