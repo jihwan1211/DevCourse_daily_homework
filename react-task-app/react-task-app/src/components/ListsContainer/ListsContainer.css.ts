@@ -1,7 +1,7 @@
 import { style } from "@vanilla-extract/css";
-import { globalStyle } from "../../App.css";
 
 export const Container = style({
+  height: "max-content",
   display: "flex",
 
   width: "100%",

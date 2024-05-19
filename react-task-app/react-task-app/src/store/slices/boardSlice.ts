@@ -1,4 +1,4 @@
-import { IBoard, TBoardState, TLoggerState, TModalState } from "../../types";
+import { IBoard, ITask, TBoardState, TLoggerState, TModalState } from "../../types";
 import { StateCreator } from "zustand";
 
 // type IBoardState = {
@@ -42,4 +42,26 @@ export const createBoardSlice: StateCreator<TBoardState & TLoggerState & TModalS
     },
   ],
   setBoard: (board: IBoard) => set((state) => ({ boardArray: [...state.boardArray, board] })),
+  setNewTask: (activeBoardId: string, listId: string, newTask: ITask) =>
+    set((state) => {
+      const shallow = { ...state };
+      shallow.boardArray = [...state.boardArray];
+
+      const targetBoardIndex = state.boardArray.findIndex((board) => board.boardId === activeBoardId);
+
+      if (targetBoardIndex !== -1) {
+        shallow.boardArray[targetBoardIndex] = { ...state.boardArray[targetBoardIndex] };
+        console.log(shallow.boardArray[targetBoardIndex]);
+        shallow.boardArray[targetBoardIndex].lists = [...state.boardArray[targetBoardIndex].lists];
+
+        const targetListIndex = state.boardArray[targetBoardIndex].lists?.findIndex((list) => list.listId == listId);
+        const targetList = state.boardArray[targetBoardIndex].lists.find((list) => list.listId === listId);
+        if (targetListIndex !== -1) {
+          shallow.boardArray[targetBoardIndex].lists[targetListIndex] = { ...state.boardArray[targetBoardIndex].lists[targetListIndex] };
+          shallow.boardArray[targetBoardIndex].lists[targetListIndex].tasks = [...state.boardArray[targetBoardIndex].lists[targetListIndex].tasks, newTask];
+        }
+      }
+
+      return shallow;
+    }),
 });

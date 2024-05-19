@@ -28,6 +28,7 @@ export type TBoardState = {
   modalActive: boolean;
   boardArray: IBoard[];
   setBoard: (board: IBoard) => void;
+  setNewTask: (activeBoardId: string, listId: string, newTask: ITask) => void;
 };
 
 export interface IBoard {

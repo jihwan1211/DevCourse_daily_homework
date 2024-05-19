@@ -1,25 +1,25 @@
 import { IList } from "../../types";
 import { Container } from "./List.css";
 import Task from "../Task/Task";
-import { ListTitle, TaskWrapper, NewTaskUpload, NewTask } from "./List.css";
-import { CgAddR } from "react-icons/cg";
+import { ListTitle, TaskWrapper } from "./List.css";
+import ActionButton from "../ActionButton/ActionButton";
+
 type Prop = {
   list: IList;
+  activeBoardId: string;
 };
 
-export default function List({ list }: Prop) {
+export default function List({ list, activeBoardId }: Prop) {
+  console.log(list.listId, list.tasks.length);
   return (
     <div className={Container}>
       <div className={ListTitle}>{list.listName}</div>
       <div className={TaskWrapper}>
         {list.tasks.map((task) => (
-          <Task task={task} />
+          <Task key={task.taskId} task={task} />
         ))}
       </div>
-      <div className={NewTaskUpload}>
-        <CgAddR />
-        <span className={NewTask}>새로운 일 등록</span>
-      </div>
+      <ActionButton listId={list.listId} activeBoardId={activeBoardId} />
     </div>
   );
 }
