@@ -15,6 +15,9 @@ export const Container = style({
   borderRadius: "12px",
 });
 
+export const ListTitleWrapper = style({
+  display: "flex",
+});
 export const ListTitle = style({
   display: "flex",
   justifyContent: "flex-start",
@@ -27,4 +30,8 @@ export const TaskWrapper = style({
   color: globalStyle.color.secondaryDarkText,
   fontSize: globalStyle.fontSizing.P1,
   fontWeight: "bold",
+});
+
+export const Pointer = style({
+  cursor: "pointer",
 });

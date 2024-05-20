@@ -1,4 +1,4 @@
-import { IBoard, ITask, TBoardState, TLoggerState, TModalState } from "../../types";
+import { IBoard, ITask, TBoardState, TLoggerState, TModalState, IList } from "../../types";
 import { StateCreator } from "zustand";
 
 // type IBoardState = {
@@ -41,7 +41,15 @@ export const createBoardSlice: StateCreator<TBoardState & TLoggerState & TModalS
       lists: [],
     },
   ],
+  setModalActiveStatus: (status: boolean) => set(() => ({ modalActive: status })),
   setBoard: (board: IBoard) => set((state) => ({ boardArray: [...state.boardArray, board] })),
+  deleteBoard: (activeBoardId: string) =>
+    set((state) => {
+      const shallow = { ...state };
+      shallow.boardArray = state.boardArray.filter((board) => board.boardId !== activeBoardId);
+      console.log(shallow);
+      return shallow;
+    }),
   setNewTask: (activeBoardId: string, listId: string, newTask: ITask) =>
     set((state) => {
       const shallow = { ...state };
@@ -51,17 +59,80 @@ export const createBoardSlice: StateCreator<TBoardState & TLoggerState & TModalS
 
       if (targetBoardIndex !== -1) {
         shallow.boardArray[targetBoardIndex] = { ...state.boardArray[targetBoardIndex] };
-        console.log(shallow.boardArray[targetBoardIndex]);
         shallow.boardArray[targetBoardIndex].lists = [...state.boardArray[targetBoardIndex].lists];
 
         const targetListIndex = state.boardArray[targetBoardIndex].lists?.findIndex((list) => list.listId == listId);
-        const targetList = state.boardArray[targetBoardIndex].lists.find((list) => list.listId === listId);
         if (targetListIndex !== -1) {
           shallow.boardArray[targetBoardIndex].lists[targetListIndex] = { ...state.boardArray[targetBoardIndex].lists[targetListIndex] };
           shallow.boardArray[targetBoardIndex].lists[targetListIndex].tasks = [...state.boardArray[targetBoardIndex].lists[targetListIndex].tasks, newTask];
         }
       }
 
+      return shallow;
+    }),
+  deleteTask: (activeBoardId: string, listId: string, taskId: string) =>
+    set((state) => {
+      const shallow = { ...state };
+      shallow.boardArray = [...state.boardArray];
+      const targetBoardIndex = state.boardArray.findIndex((board) => board.boardId === activeBoardId);
+
+      if (targetBoardIndex !== -1) {
+        shallow.boardArray[targetBoardIndex] = { ...state.boardArray[targetBoardIndex] };
+        shallow.boardArray[targetBoardIndex].lists = [...state.boardArray[targetBoardIndex].lists];
+
+        const targetListIndex = state.boardArray[targetBoardIndex].lists?.findIndex((list) => list.listId == listId);
+        if (targetListIndex !== -1) {
+          const newTaskArr = state.boardArray[targetBoardIndex].lists[targetListIndex].tasks.filter((task) => task.taskId !== taskId);
+          shallow.boardArray[targetBoardIndex].lists[targetListIndex] = { ...state.boardArray[targetBoardIndex].lists[targetListIndex], tasks: newTaskArr };
+        }
+      }
+      return shallow;
+    }),
+  modifyTask: (activeBoardId: string, listId: string, taskId: string, newTask: ITask) =>
+    set((state) => {
+      const shallow = { ...state };
+      shallow.boardArray = [...state.boardArray];
+      const targetBoardIndex = state.boardArray.findIndex((board) => board.boardId === activeBoardId);
+
+      if (targetBoardIndex !== -1) {
+        shallow.boardArray[targetBoardIndex] = { ...state.boardArray[targetBoardIndex] };
+        shallow.boardArray[targetBoardIndex].lists = [...state.boardArray[targetBoardIndex].lists];
+
+        const targetListIndex = state.boardArray[targetBoardIndex].lists?.findIndex((list) => list.listId == listId);
+        if (targetListIndex !== -1) {
+          shallow.boardArray[targetBoardIndex].lists[targetListIndex] = { ...state.boardArray[targetBoardIndex].lists[targetListIndex] };
+
+          const targetTaskIndex = state.boardArray[targetBoardIndex].lists[targetListIndex].tasks.findIndex((task) => task.taskId === taskId);
+          if (targetTaskIndex !== -1) {
+            shallow.boardArray[targetBoardIndex].lists[targetListIndex].tasks = [...state.boardArray[targetBoardIndex].lists[targetListIndex].tasks];
+            shallow.boardArray[targetBoardIndex].lists[targetListIndex].tasks[targetTaskIndex] = { ...newTask };
+          }
+        }
+      }
+      return shallow;
+    }),
+  setNewList: (activeBoardId: string, newList: IList) =>
+    set((state) => {
+      const shallow = { ...state };
+      shallow.boardArray = [...state.boardArray];
+      const targetBoardIndex = state.boardArray.findIndex((board) => board.boardId === activeBoardId);
+
+      if (targetBoardIndex !== -1) {
+        shallow.boardArray[targetBoardIndex] = { ...state.boardArray[targetBoardIndex] };
+        shallow.boardArray[targetBoardIndex].lists = [...state.boardArray[targetBoardIndex].lists, newList];
+      }
+      return shallow;
+    }),
+  deleteList: (activeBoardId: string, listId: string) =>
+    set((state) => {
+      const shallow = { ...state };
+      shallow.boardArray = [...state.boardArray];
+      const targetBoardIndex = state.boardArray.findIndex((board) => board.boardId === activeBoardId);
+      if (targetBoardIndex !== -1) {
+        shallow.boardArray[targetBoardIndex] = { ...state.boardArray[targetBoardIndex] };
+        const deletedList = state.boardArray[targetBoardIndex].lists.filter((list) => list.listId !== listId);
+        shallow.boardArray[targetBoardIndex].lists = deletedList;
+      }
       return shallow;
     }),
 });

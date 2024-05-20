@@ -5,6 +5,8 @@ export const Container = style({
   flexDirection: "column",
   justifyContent: "flex-end",
   alignItems: "flex-end",
+  height: "max-content",
+  marginTop: "15px",
 });
 
 export const Button = style({

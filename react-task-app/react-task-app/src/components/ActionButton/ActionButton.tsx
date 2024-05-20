@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { CgAddR } from "react-icons/cg";
-import { NewTaskUpload, NewTask, Container, Span } from "./ActionButtom.css";
+import { Container, Span, NewList } from "./ActionButtom.css";
 import DropDownForm from "./DropDownForm/DropDowmForm";
+import clsx from "clsx";
 
 type Prop = {
   listId: string;
@@ -10,6 +11,7 @@ type Prop = {
 
 export default function ActionButton({ listId, activeBoardId }: Prop) {
   const [isNewTaskCliked, setIsNewTaskClicked] = useState(false);
+  const buttonText = listId.length ? "새로운 일 등록" : "새로운 리스트 추가";
 
   const onClickNewTask = () => {
     setIsNewTaskClicked(true);
@@ -17,15 +19,10 @@ export default function ActionButton({ listId, activeBoardId }: Prop) {
 
   return isNewTaskCliked ? (
     <DropDownForm listId={listId} activeBoardId={activeBoardId} setIsNewTaskClicked={setIsNewTaskClicked} />
-  ) : listId.length === 0 ? (
-    <div className={Container} onClick={onClickNewTask}>
-      <CgAddR />
-      <span className={Span}>새로운 리스트 추가</span>
-    </div>
   ) : (
-    <div className={NewTaskUpload} onClick={onClickNewTask}>
+    <div className={clsx({ [Container]: listId.length !== 0 }, { [NewList]: listId.length === 0 })} onClick={onClickNewTask}>
       <CgAddR />
-      <span className={NewTask}>새로운 일 등록</span>
+      <span className={Span}>{buttonText}</span>
     </div>
   );
 }

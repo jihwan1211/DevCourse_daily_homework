@@ -10,6 +10,7 @@ export const TaskWrapper = style({
   padding: "12px",
   ":hover": {
     backgroundColor: globalStyle.color.taskHover,
+    transform: "scale(1.03)",
   },
   cursor: "pointer",
 });

@@ -45,10 +45,16 @@ export const globalStyle = createGlobalTheme(":root", {
 export const appContainer = style({
   display: "flex",
   flexDirection: "column",
-  minHeight: "100vh",
+  minHeight: "100dvh",
   height: "max-content",
   width: "100dvw",
+  position: "relative",
 });
 
 export const board = style({ display: "flex", flexDirection: "row", height: "100%", width: "100dvw" });
-export const buttons = style({ marginTop: "auto", paddingLeft: globalStyle.spacing.big2 });
+export const buttons = style({ marginTop: "auto", paddingLeft: globalStyle.spacing.big2, padding: 15 });
+export const Button = style({
+  padding: 15,
+  margin: 5,
+  cursor: "pointer",
+});

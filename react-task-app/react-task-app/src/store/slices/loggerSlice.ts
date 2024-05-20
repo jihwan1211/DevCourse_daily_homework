@@ -9,4 +9,8 @@ import { StateCreator } from "zustand";
 //   logArr: [],
 // };
 
-export const createLoggerSlice: StateCreator<TBoardState & TLoggerState & TModalState, [], [], TLoggerState> = () => ({} as TLoggerState);
+export const createLoggerSlice: StateCreator<TBoardState & TLoggerState & TModalState, [], [], TLoggerState> = (set) =>
+  ({
+    logArr: [{ logId: "logid", logAuthor: "me", logMessage: "meme", logTimestamp: "meme" }],
+    setLog: (log: ILogItem) => set((state) => ({ logArr: [...state.logArr, log] })),
+  } as TLoggerState);

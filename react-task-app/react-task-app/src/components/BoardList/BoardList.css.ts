@@ -5,7 +5,7 @@ export const Container = style({
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  height: "50px",
+  minHeight: "max-content",
 
   backgroundColor: globalStyle.color.mainDarker,
 });
