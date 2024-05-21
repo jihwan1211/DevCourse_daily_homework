@@ -6,6 +6,7 @@ import ActionButton from "../ActionButton/ActionButton";
 import { GrSubtract } from "react-icons/gr";
 import { useBoundStore } from "../../store";
 import { v4 as uuidv4 } from "uuid";
+import { Droppable } from "react-beautiful-dnd";
 
 type Prop = {
   list: IList;
@@ -27,19 +28,24 @@ export default function List({ list, activeBoardId }: Prop) {
   };
 
   return (
-    <div className={Container}>
-      <div className={ListTitleWrapper}>
-        <div className={ListTitle}>{list.listName}</div>
-        <GrSubtract className={Pointer} onClick={deleteListHandler} />
-      </div>
-      <div className={TaskWrapper}>
-        {list.tasks.map((task) => (
-          <div onClick={() => onClickOpenModal(task)}>
-            <Task key={task.taskId} task={task} />
+    <Droppable droppableId={list.listId}>
+      {(provided) => (
+        <div className={Container} ref={provided.innerRef} {...provided.droppableProps}>
+          <div className={ListTitleWrapper}>
+            <div className={ListTitle}>{list.listName}</div>
+            <GrSubtract className={Pointer} onClick={deleteListHandler} />
           </div>
-        ))}
-      </div>
-      <ActionButton listId={list.listId} activeBoardId={activeBoardId} />
-    </div>
+          <div className={TaskWrapper}>
+            {list.tasks.map((task, idx) => (
+              <div key={task.taskId} onClick={() => onClickOpenModal(task)}>
+                <Task task={task} index={idx} />
+              </div>
+            ))}
+          </div>
+          {provided.placeholder}
+          <ActionButton listId={list.listId} activeBoardId={activeBoardId} />
+        </div>
+      )}
+    </Droppable>
   );
 }

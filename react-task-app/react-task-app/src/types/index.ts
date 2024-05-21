@@ -11,12 +11,8 @@ export type TModalState = {
     listId: string;
     task: ITask;
   };
-  loggerModal: {
-    logArr: ILogItem[];
-  };
 
   setBoardModal: (activeBoardId: string, listId: string, newTask: ITask) => void;
-  setLoggerModal: (logArr: ILogItem[]) => void;
   reset: () => void;
 };
 
@@ -45,6 +41,7 @@ export type TBoardState = {
   modifyTask: (activeBoardId: string, listId: string, taskId: string, newTask: ITask) => void;
   setNewList: (activeBoardId: string, newList: IList) => void;
   deleteList: (activeBoardId: string, listId: string) => void;
+  dragDropTask: (activeBoardId: string, source: { droppableId: string; index: number }, destination: { droppableId: string; index: number }) => void;
 };
 
 export interface IBoard {
@@ -58,3 +55,10 @@ export interface IList {
   listName: string;
   tasks: ITask[];
 }
+
+export type TUserState = {
+  email: string;
+  id: string;
+  setUser: (email: string, id: string) => void;
+  resetUser: () => void;
+};

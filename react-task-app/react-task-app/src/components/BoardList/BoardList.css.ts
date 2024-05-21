@@ -39,9 +39,16 @@ export const BoardListStyle = style({
 export const SideFormWarpper = style({
   display: "flex",
   justifyContent: "flex-end",
+  alignItems: "center",
   width: "150px",
 });
 
 export const ActiveBoard = style({
   backgroundColor: globalStyle.color.secondaryDarkText,
+});
+
+export const Sign = style({
+  margin: globalStyle.spacing.big2,
+  color: "white",
+  cursor: "pointer",
 });
