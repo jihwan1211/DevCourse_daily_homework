@@ -9,9 +9,9 @@ interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
 }
 
-export default function Button({ children, size, scheme, disabled, isLoading }: Props) {
+export default function Button({ children, size, scheme, disabled, isLoading, ...props }: Props) {
   return (
-    <ButtonStyle size={size} scheme={scheme} disabled={disabled} isLoading={isLoading}>
+    <ButtonStyle size={size} scheme={scheme} disabled={disabled} isLoading={isLoading} {...props}>
       {children}
     </ButtonStyle>
   );
