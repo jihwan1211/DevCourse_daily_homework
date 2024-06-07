@@ -8,6 +8,7 @@ import { login, signup } from "../api/auth.api";
 import { useAlert } from "../hooks/useAlert";
 import { SignupStyle } from "./Signup";
 import { useAuthStore } from "../store/authStore";
+import { useAuth } from "@/hooks/useAuth";
 
 export interface SignupProps {
   email: string;
@@ -15,9 +16,8 @@ export interface SignupProps {
 }
 
 export default function Login() {
-  const navigate = useNavigate();
-  const { showAlert } = useAlert();
-  const { isLoggedIn, storeLogin, storeLogout } = useAuthStore();
+  const { userLogin } = useAuth();
+
   const {
     register,
     handleSubmit,
@@ -25,17 +25,7 @@ export default function Login() {
   } = useForm<SignupProps>();
 
   const onSubmit = (data: SignupProps) => {
-    login(data).then(
-      (res) => {
-        console.log("로그인 토큰", res);
-        storeLogin(res.accessToken);
-        showAlert("로그인 완료");
-        navigate("/");
-      },
-      (error) => {
-        showAlert("로그인 실패하였ㅅ습니다.");
-      }
-    );
+    userLogin(data);
   };
 
   return (

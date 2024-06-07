@@ -6,9 +6,13 @@ import Pagination from "../components/Books/Pagination";
 import BooksList from "../components/Books/BooksList";
 import BooksEmpty from "../components/Books/BooksEmpty";
 import { useBooks } from "../hooks/useBooks";
+import Loading from "@/components/common/Loading";
 
 export default function Books() {
-  const { books, pagination, isEmpty } = useBooks();
+  const { books, pagination, isEmpty, isBooksLoading } = useBooks();
+
+  if (isEmpty) return <BooksEmpty />;
+  if (isBooksLoading) return <Loading />;
   return (
     <>
       <Title size="large">도서 검색 결과</Title>
@@ -17,9 +21,8 @@ export default function Books() {
           <BooksFilter />
           <BooksViewSwitcher />
         </div>
-        {!isEmpty && <BooksList books={books} />}
-        {isEmpty && <BooksEmpty />}
-        {!isEmpty && <Pagination pagination={pagination} />}
+        {books && <BooksList books={books} />}
+        {pagination && <Pagination pagination={pagination} />}
       </BookStyle>
     </>
   );
