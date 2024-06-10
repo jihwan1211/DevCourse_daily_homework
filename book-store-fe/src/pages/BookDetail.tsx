@@ -9,6 +9,7 @@ import { formatDate, formatNumber } from "../utils/format";
 import EllipsisBox from "../components/common/EllipsisBox";
 import LikeButton from "../components/Book/LikeButton";
 import AddToCart from "../components/Book/AddToCart";
+import BookReview from "@/components/Book/BookReview";
 
 const bookInfoList = [
   {
@@ -48,7 +49,8 @@ const bookInfoList = [
 
 export default function BookDetail() {
   const { bookId } = useParams();
-  const { book, likeToggle } = useBook(bookId);
+  const { book, likeToggle, reviews, addReview } = useBook(bookId);
+  console.log(reviews);
   if (!book) return null;
   return (
     <BookDetailStyle>
@@ -81,6 +83,9 @@ export default function BookDetail() {
 
         <Title size="medium">목차</Title>
         <p className="index">{book.contents}</p>
+
+        <Title size="medium">리뷰</Title>
+        <BookReview reviews={reviews} onAdd={addReview} />
       </div>
     </BookDetailStyle>
   );
