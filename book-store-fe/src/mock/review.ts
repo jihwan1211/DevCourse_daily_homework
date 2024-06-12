@@ -10,12 +10,18 @@ const mockReviewsData: BookReviewItem[] = Array.from({ length: 8 }).map((_, inde
   score: faker.helpers.rangeToNumber({ min: 1, max: 5 }),
 }));
 
-export const reviewsById = http.get(`reviews/:bookId`, () => {
+export const reviewsById = http.get(`/reviews/:bookId`, () => {
   return HttpResponse.json(mockReviewsData, {
     status: 200,
   });
 });
 
-export const addReview = http.post(`reviews/:bookId`, () => {
+export const addReview = http.post(`/reviews/:bookId`, () => {
   return HttpResponse.json({}, { status: 200 });
+});
+
+export const reviewForMain = http.get("/reviews", () => {
+  return HttpResponse.json(mockReviewsData, {
+    status: 200,
+  });
 });
